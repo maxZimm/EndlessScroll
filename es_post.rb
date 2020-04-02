@@ -12,7 +12,7 @@ class Post
   # TODO if it is a media element click play
   # TODO make wait time based on content | DONE
   # TODO fix missing context when driver is assinged to default content
-attr_reader :type, :ended, :driver
+attr_reader :type, :ref, :driver
 
   def post_action( post )
     post_type( post )
@@ -27,7 +27,7 @@ attr_reader :type, :ended, :driver
     rescue Selenium::WebDriver::Error::NoSuchElementError 
       @type = :image
     end 
-    puts "#{ post.ref } | #{ post.location.y }"
+    @ref = post.ref
     @type
   end
 
@@ -49,11 +49,11 @@ attr_reader :type, :ended, :driver
 
   def sleep_time( post )
     if @type == :gif
-      sleep( gif_length( post ))
+      sleep( gif_length( post ) * 1.25)
     else
-      @time = 4
+      @time = 5
       sleep(@time)
     end
-    puts @type, @time
+    print [@type, @time, @ref, "\n"].join(' ')
   end
 end
