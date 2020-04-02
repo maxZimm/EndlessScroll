@@ -1,4 +1,5 @@
 require 'selenium-webdriver'
+require './es_post'
 require 'pry'
 
 class EndlessScroll
@@ -9,14 +10,18 @@ class EndlessScroll
     @driver.manage.window.maximize
     @driver.get "http://reddit.com/r/#{@subreddit}"
     adult_check
-    @list  = @driver.find_elements(:css, ".scrollerItem")
+    @list  = @driver.find_elements(:css, ".Post")
     endless_scroll(@list)
   end
 
 
   def endless_scroll(list)
+    begin
       list_view(list)
-      sleep(5)
+    ensure
+      list[-1] != nil
+    end
+      binding.pry
       newer = update_list(list)
       endless_scroll(newer)
   end
@@ -34,21 +39,20 @@ class EndlessScroll
 
   def list_view(list)
     list.each do |item|
-      @driver.execute_script("arguments[0].scrollIntoView(true)", item)
-      puts "#{item}  : #{item.location.y}"
-      sleep(5)
+      Post.new( @driver, item)
+      puts "#{item.ref}  : #{item.location.y}"
+      # TODO if it is a media element click play
+      # TODO make wait time based on content
+      #sleep(5)
     end
   end
 
   def update_list(list)
-    update = @driver.find_elements(:css, ".scrollerItem")
-    update = only_visible(update)
-    out = update[(update.length - list.length) .. update.length]
+    update = @driver.find_elements(:css, ".Post")
+    cut_point = update.find_index {|el| el.ref == list[-1].ref }
+    cut_point = cut_point + 1
+    out = update.slice( cut_point..-1 )
     out
-  end
-
-  def only_visible(list)
-    list.delete_if {|el| !el.displayed? }
   end
 end
 
