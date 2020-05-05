@@ -6,7 +6,6 @@ class EndlessScroll
 
   def initialize(subreddit)
     options = Selenium::WebDriver::Chrome::Options.new
-    options.add_extension( '/home/maxzim/Documents/extension_5_18_10_0.crx')
     @driver = Selenium::WebDriver.for :chrome, options: options
     @subreddit = subreddit
     @driver.manage.window.maximize
