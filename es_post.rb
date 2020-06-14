@@ -3,7 +3,6 @@ require 'pry'
 
 class Post
   def initialize( driver, element)
-      #@driver = Selenium::WebDriver.for :chrome
       @driver = driver
       @element = element
       @time 
@@ -34,19 +33,14 @@ attr_reader :type, :ref, :driver
   end
 
   def gif_length( post )
-    l1 = post.find_element( css: 'iframe')
-    @driver.switch_to.frame( l1 )
-    l2 = @driver.find_element( css: 'iframe')
-    @driver.switch_to.frame( l2 )
-    l3 = @driver.find_element( css: 'iframe')
-    @driver.switch_to.frame( l3 )
+    find_iframe_depth(post)
     begin
       vid = @driver.find_element(css: '.video.media')
       vid.send_keys( :space )
 		  time = @driver.find_element( css: '.progress-control')
       @time = time.attribute('data-tooltip').to_i
     rescue Selenium::WebDriver::Error::NoSuchElementError 
-      @time = 5
+      @time = wait_time 
     end
   end
 
@@ -54,9 +48,30 @@ attr_reader :type, :ref, :driver
     if @type == :gif
       sleep( gif_length( post ) * 1.2)
     else
-      @time = 5
+      @time = wait_time
       sleep(@time)
     end
     print [@type, @time, @ref, "\n"].join(' ')
+  end
+
+  def wait_time
+    if ARGV[1]
+      ARGV[1].to_i
+    else
+      6
+    end
+  end
+
+  def find_iframe_depth(level)
+    begin
+      # search for an iframe
+      nlevel = level.find_element(css: 'iframe')
+      # if found set driver to iframe context
+      @driver.switch_to.frame( nlevel )
+      # call this method with next level
+      find_iframe_depth(@driver.find_element(css: 'body'))
+    rescue Selenium::WebDriver::Error::NoSuchElementError 
+      @driver
+    end
   end
 end
