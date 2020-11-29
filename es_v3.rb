@@ -1,6 +1,5 @@
 require 'selenium-webdriver'
 require './es_post'
-require 'pry'
 
 class EndlessScroll
 
@@ -30,7 +29,7 @@ class EndlessScroll
 
   def adult_check
     begin
-      @driver.find_element(:xpath, '//a[text() = "Yes"]').click
+      @driver.find_element(:xpath, '//button[text() = "Yes"]').click
       
       rescue Selenium::WebDriver::Error::NoSuchElementError
 	puts "All ages"
